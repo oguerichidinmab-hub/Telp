@@ -1,0 +1,5 @@
+{
+  "name": "TELP",
+  "description": "A safe, youth-friendly support platform for teens facing bullying, abuse, and sexual violence. Provides confidential guidance, reporting, and emergency resources.",
+  "requestFramePermissions": ["geolocation"]
+}
