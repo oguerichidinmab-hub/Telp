@@ -11,6 +11,8 @@ interface HomeViewProps {
   safetyPlan: SafetyPlan;
 }
 
+import { Logo } from '../components/Logo';
+
 export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMoods, profile, safetyPlan }) => {
   const [showMoodPicker, setShowMoodPicker] = useState(true);
 
@@ -37,24 +39,33 @@ export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMood
   return (
     <div className="space-y-6">
       {/* Welcome Card */}
-      <section className="bg-blue-600 rounded-3xl p-6 text-white shadow-xl">
-        <h2 className="text-xl font-bold mb-2">You are safe here.</h2>
-        <p className="text-blue-100 text-sm mb-4">How can we help you today?</p>
-        <div className="grid grid-cols-2 gap-3">
-          <button 
-            onClick={() => setActiveTab('contacts')}
-            className="bg-white/20 hover:bg-white/30 p-3 rounded-2xl flex flex-col items-center gap-2 transition-colors"
-          >
-            <Phone size={20} />
-            <span className="text-xs font-semibold">Emergency</span>
-          </button>
-          <button 
-            onClick={() => setActiveTab('report')}
-            className="bg-white/20 hover:bg-white/30 p-3 rounded-2xl flex flex-col items-center gap-2 transition-colors"
-          >
-            <FileText size={20} />
-            <span className="text-xs font-semibold">Report</span>
-          </button>
+      <section className="bg-blue-600 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+        <div className="absolute -right-8 -top-8 opacity-10 rotate-12">
+          <Logo size={160} variant="icon" />
+        </div>
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-4">
+            <Logo size={20} variant="icon" className="brightness-200" />
+            <span className="text-[10px] font-black tracking-widest uppercase opacity-80">TELP Dashboard</span>
+          </div>
+          <h2 className="text-2xl font-bold mb-2">You are safe here.</h2>
+          <p className="text-blue-100 text-sm mb-6">How can we help you today?</p>
+          <div className="grid grid-cols-2 gap-3">
+            <button 
+              onClick={() => setActiveTab('contacts')}
+              className="bg-white/20 hover:bg-white/30 p-3 rounded-2xl flex flex-col items-center gap-2 transition-colors backdrop-blur-sm"
+            >
+              <Phone size={20} />
+              <span className="text-xs font-semibold">Emergency</span>
+            </button>
+            <button 
+              onClick={() => setActiveTab('report')}
+              className="bg-white/20 hover:bg-white/30 p-3 rounded-2xl flex flex-col items-center gap-2 transition-colors backdrop-blur-sm"
+            >
+              <FileText size={20} />
+              <span className="text-xs font-semibold">Report</span>
+            </button>
+          </div>
         </div>
       </section>
 

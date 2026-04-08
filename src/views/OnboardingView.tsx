@@ -7,6 +7,8 @@ interface OnboardingViewProps {
   onComplete: (profile: Partial<UserProfile>) => void;
 }
 
+import { Logo } from '../components/Logo';
+
 export const OnboardingView: React.FC<OnboardingViewProps> = ({ onComplete }) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Partial<UserProfile>>({
@@ -31,8 +33,8 @@ export const OnboardingView: React.FC<OnboardingViewProps> = ({ onComplete }) =>
             exit={{ opacity: 0, x: -20 }}
             className="space-y-8 text-center"
           >
-            <div className="bg-blue-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto text-blue-600">
-              <Shield size={48} />
+            <div className="mx-auto flex justify-center">
+              <Logo size={96} variant="icon" />
             </div>
             <div className="space-y-4">
               <h2 className="text-3xl font-bold text-gray-800">Welcome to TELP</h2>

@@ -85,7 +85,7 @@ export const AssistantView: React.FC<AssistantViewProps> = ({ onClose }) => {
       initial={{ opacity: 0, y: '100%' }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: '100%' }}
-      className="fixed inset-0 bg-white z-[100] flex flex-col"
+      className="fixed inset-0 lg:left-1/2 lg:-translate-x-1/2 lg:max-w-md bg-white z-[100] flex flex-col shadow-2xl"
     >
       {/* Header */}
       <header className="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0">

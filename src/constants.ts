@@ -33,28 +33,124 @@ export const MOCK_RESOURCES: Resource[] = [
 
 export const MOCK_AUTHORITIES = [
   {
-    id: 'a1',
-    name: 'Child Protection Services',
-    type: 'Official',
-    phone: '1-800-422-4453',
-    description: 'National Child Abuse Hotline',
-    distance: '0.5 miles'
-  },
-  {
-    id: 'a2',
-    name: 'Local Police Department',
+    id: 'n1',
+    name: 'National Emergency Number',
     type: 'Emergency',
-    phone: '911',
-    description: 'For immediate danger',
-    distance: '1.2 miles'
+    phone: '112',
+    description: 'Police, Ambulance, and Fire services nationwide.',
+    distance: 'National'
   },
   {
-    id: 'a3',
-    name: 'Teen Helpline',
-    type: 'Support',
-    phone: '800-852-8336',
-    description: 'Confidential peer support',
-    distance: 'Online'
+    id: 'n2',
+    name: 'Federal Ministry of Education',
+    type: 'Anti-Bullying',
+    phone: '09012660044',
+    description: 'Specialized Anti-Bullying Hotline for school safety.',
+    distance: 'National'
+  },
+  {
+    id: 'n3',
+    name: 'Ministry of Education (WhatsApp)',
+    type: 'Anti-Bullying',
+    phone: '08052536133',
+    description: 'WhatsApp reporting for school-related incidents.',
+    distance: 'National'
+  },
+  {
+    id: 'n4',
+    name: 'Lagos State DSVA',
+    type: 'Anti-Bullying',
+    phone: '08000333333',
+    description: 'Domestic and Sexual Violence Agency (Toll-Free).',
+    distance: 'Lagos'
+  },
+  {
+    id: 'n5',
+    name: 'Lagos DSVA USSD',
+    type: 'Anti-Bullying',
+    phone: '*6820#',
+    description: 'Quick reporting via USSD (MTN Network).',
+    distance: 'Lagos'
+  },
+  {
+    id: 'n6',
+    name: 'NAPTIP Toll-Free Helpline',
+    type: 'Emergency',
+    phone: '08002255627874',
+    description: 'National Agency for Prohibition of Trafficking in Persons.',
+    distance: 'National'
+  },
+  {
+    id: 'n7',
+    name: 'Cece Yara Foundation',
+    type: 'Child Protection',
+    phone: '08008008001',
+    description: 'Child Helpline for reporting abuse (Toll-Free).',
+    distance: 'National'
+  },
+  {
+    id: 'n8',
+    name: 'Child Protection Network (CPN)',
+    type: 'Child Protection',
+    phone: '09131619354',
+    description: 'National centre for child protection and advocacy.',
+    distance: 'National'
+  },
+  {
+    id: 'n9',
+    name: 'Federal Ministry of Women Affairs',
+    type: 'Child Protection',
+    phone: '08033837798',
+    description: 'Government ministry for women and child welfare.',
+    distance: 'National'
+  },
+  {
+    id: 'n10',
+    name: 'Mentally Aware Nigeria (MANI)',
+    type: 'Mental Health',
+    phone: '08091116264',
+    description: 'Mental health support and crisis intervention.',
+    distance: 'National'
+  },
+  {
+    id: 'n11',
+    name: 'SURPIN Lifeline',
+    type: 'Mental Health',
+    phone: '08000787746',
+    description: 'Suicide and Depression Lifeline (Toll-Free).',
+    distance: 'National'
+  },
+  {
+    id: 'n12',
+    name: 'Lagos Police Control',
+    type: 'Police',
+    phone: '07055462708',
+    description: 'Regional police control room for Lagos State.',
+    distance: 'Lagos'
+  },
+  {
+    id: 'n13',
+    name: 'Abuja (FCT) Police',
+    type: 'Police',
+    phone: '07057337653',
+    description: 'Regional police control room for the FCT.',
+    distance: 'Abuja'
+  },
+  {
+    id: 'n14',
+    name: 'Kano Police Control',
+    type: 'Police',
+    phone: '08032419754',
+    description: 'Regional police control room for Kano State.',
+    distance: 'Kano'
+  },
+  {
+    id: 'n15',
+    name: 'Rivers Police Control',
+    type: 'Police',
+    phone: '08032003514',
+    description: 'Regional police control room for Rivers State.',
+    distance: 'Rivers'
   }
 ];
 

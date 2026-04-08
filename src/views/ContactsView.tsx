@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, MessageSquare, MapPin, Plus, Trash2, Shield, Heart, User, Star } from 'lucide-react';
+import { Phone, MessageSquare, MapPin, Plus, Trash2, Shield, Heart, User, Star, AlertCircle } from 'lucide-react';
 import { TrustedContact } from '../types';
 import { MOCK_AUTHORITIES } from '../constants';
 import { ConfirmModal } from '../components/Modal';
@@ -54,42 +54,70 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContact
     }
   };
 
+  const groupedAuthorities = MOCK_AUTHORITIES.reduce((acc, auth) => {
+    if (!acc[auth.type]) acc[auth.type] = [];
+    acc[auth.type].push(auth);
+    return acc;
+  }, {} as Record<string, typeof MOCK_AUTHORITIES>);
+
+  const getCategoryIcon = (type: string) => {
+    switch (type) {
+      case 'Emergency': return <AlertCircle size={18} className="text-red-500" />;
+      case 'Anti-Bullying': return <Shield size={18} className="text-blue-600" />;
+      case 'Child Protection': return <Heart size={18} className="text-pink-500" />;
+      case 'Mental Health': return <Star size={18} className="text-purple-500" />;
+      case 'Police': return <Shield size={18} className="text-gray-600" />;
+      default: return <Shield size={18} className="text-blue-600" />;
+    }
+  };
+
   return (
     <div className="space-y-8 pb-12">
       {/* Emergency Authorities */}
-      <section className="space-y-4">
-        <h3 className="font-bold text-gray-800 flex items-center gap-2">
-          <Shield size={18} className="text-blue-600" />
-          Emergency Authorities
-        </h3>
-        <div className="space-y-3">
-          {MOCK_AUTHORITIES.map((auth) => (
-            <div key={auth.id} className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h4 className="font-bold text-gray-800">{auth.name}</h4>
-                  <p className="text-xs text-gray-500">{auth.description}</p>
-                </div>
-                <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-1 rounded-lg">
-                  {auth.distance}
-                </span>
-              </div>
-              <div className="flex gap-2 mt-4">
-                <a 
-                  href={`tel:${auth.phone}`}
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-bold active:scale-95 transition-transform"
-                >
-                  <Phone size={18} />
-                  Call
-                </a>
-                <button className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl flex items-center justify-center gap-2 font-bold active:scale-95 transition-transform">
-                  <MapPin size={18} />
-                  Map
-                </button>
-              </div>
-            </div>
-          ))}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-gray-800 flex items-center gap-2">
+            <Shield size={18} className="text-blue-600" />
+            Official Support Services
+          </h3>
         </div>
+
+        {Object.entries(groupedAuthorities).map(([type, auths]) => (
+          <div key={type} className="space-y-3">
+            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2 px-1">
+              {getCategoryIcon(type)}
+              {type}
+            </h4>
+            <div className="space-y-3">
+              {auths.map((auth) => (
+                <div key={auth.id} className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-bold text-gray-800">{auth.name}</h4>
+                      <p className="text-xs text-gray-500">{auth.description}</p>
+                    </div>
+                    <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-1 rounded-lg">
+                      {auth.distance}
+                    </span>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <a 
+                      href={auth.phone.startsWith('*') ? `tel:${auth.phone.replace('#', '%23')}` : `tel:${auth.phone}`}
+                      className="flex-1 bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-bold active:scale-95 transition-transform"
+                    >
+                      <Phone size={18} />
+                      {auth.phone.startsWith('*') ? 'Dial Code' : 'Call'}
+                    </a>
+                    <button className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl flex items-center justify-center gap-2 font-bold active:scale-95 transition-transform">
+                      <MapPin size={18} />
+                      Info
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
 
       {/* Trusted Contacts */}
