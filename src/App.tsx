@@ -18,6 +18,8 @@ import { MessageCircle } from 'lucide-react';
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [showAssistant, setShowAssistant] = useState(false);
+  const [backAction, setBackAction] = useState<(() => void) | null>(null);
+  const [customTitle, setCustomTitle] = useState<string | null>(null);
   const { 
     profile, setProfile, 
     contacts, setContacts, 
@@ -26,6 +28,12 @@ export default function App() {
     safetyPlan, setSafetyPlan
   } = useLocalStorage();
 
+  // Reset back action and custom title when tab changes
+  React.useEffect(() => {
+    setBackAction(null);
+    setCustomTitle(null);
+  }, [activeTab]);
+
   if (!profile.onboarded) {
     return <OnboardingView onComplete={(p) => setProfile({ ...p, onboarded: true })} />;
   }
@@ -33,15 +41,16 @@ export default function App() {
   const renderView = () => {
     switch (activeTab) {
       case 'home': return <HomeView setActiveTab={setActiveTab} moods={moods} setMoods={setMoods} profile={profile} safetyPlan={safetyPlan} />;
-      case 'support': return <SupportResourcesView />;
-      case 'report': return <ReportView reports={reports} setReports={setReports} />;
-      case 'contacts': return <ContactsView contacts={contacts} setContacts={setContacts} />;
-      case 'profile': return <ProfileView profile={profile} setProfile={setProfile} safetyPlan={safetyPlan} setSafetyPlan={setSafetyPlan} />;
+      case 'support': return <SupportResourcesView setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
+      case 'report': return <ReportView reports={reports} setReports={setReports} setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
+      case 'contacts': return <ContactsView contacts={contacts} setContacts={setContacts} setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
+      case 'profile': return <ProfileView profile={profile} setProfile={setProfile} safetyPlan={safetyPlan} setSafetyPlan={setSafetyPlan} setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
       default: return <HomeView setActiveTab={setActiveTab} moods={moods} setMoods={setMoods} profile={profile} />;
     }
   };
 
   const getTitle = () => {
+    if (customTitle) return customTitle;
     const displayName = profile.privacyMode ? 'User' : (profile.name || 'Friend');
     switch (activeTab) {
       case 'home': return 'Hello, ' + displayName;
@@ -56,7 +65,7 @@ export default function App() {
   return (
     <div className={`min-h-screen bg-gray-50 pb-24 font-sans ${profile.disguisedMode ? 'grayscale contrast-125' : ''}`}>
       <QuickExit />
-      <Header title={getTitle()} />
+      <Header title={getTitle()} onBack={backAction || undefined} />
       
       <main className="px-6 pb-4">
         <AnimatePresence mode="wait">

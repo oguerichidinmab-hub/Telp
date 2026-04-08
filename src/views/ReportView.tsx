@@ -7,11 +7,27 @@ import { ConfirmModal } from '../components/Modal';
 interface ReportViewProps {
   reports: IncidentReport[];
   setReports: React.Dispatch<React.SetStateAction<IncidentReport[]>>;
+  setBackAction: (action: (() => void) | null) => void;
+  setCustomTitle: (title: string | null) => void;
 }
 
-export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports }) => {
+export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports, setBackAction, setCustomTitle }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (isCreating) {
+      setBackAction(() => () => setIsCreating(false));
+      setCustomTitle('New Report');
+    } else {
+      setBackAction(null);
+      setCustomTitle(null);
+    }
+    return () => {
+      setBackAction(null);
+      setCustomTitle(null);
+    };
+  }, [isCreating, setBackAction, setCustomTitle]);
   const [formData, setFormData] = useState<Partial<IncidentReport>>({
     type: '',
     date: new Date().toISOString().split('T')[0],
@@ -59,7 +75,6 @@ export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports }) =
       <div className="space-y-6 pb-12">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">New Incident Log</h2>
-          <button onClick={() => setIsCreating(false)} className="text-gray-400">Cancel</button>
         </div>
 
         <div className="space-y-4">

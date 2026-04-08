@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Shield, FileText, BookOpen, Phone, User, XCircle } from 'lucide-react';
+import { Home, Shield, FileText, BookOpen, Phone, User, XCircle, ChevronLeft } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface BottomNavProps {
@@ -60,8 +60,16 @@ export const QuickExit: React.FC = () => {
   );
 };
 
-export const Header: React.FC<{ title: string }> = ({ title }) => (
-  <header className="pt-16 pb-4 px-6 bg-white sticky top-0 z-40">
+export const Header: React.FC<{ title: string; onBack?: () => void }> = ({ title, onBack }) => (
+  <header className="pt-16 pb-4 px-6 bg-white sticky top-0 z-40 flex items-center gap-2">
+    {onBack && (
+      <button 
+        onClick={onBack}
+        className="p-2 -ml-2 text-gray-600 active:scale-90 transition-transform rounded-full hover:bg-gray-50"
+      >
+        <ChevronLeft size={24} />
+      </button>
+    )}
     <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
   </header>
 );

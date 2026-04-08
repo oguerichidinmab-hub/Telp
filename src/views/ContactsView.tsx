@@ -7,10 +7,26 @@ import { ConfirmModal } from '../components/Modal';
 interface ContactsViewProps {
   contacts: TrustedContact[];
   setContacts: React.Dispatch<React.SetStateAction<TrustedContact[]>>;
+  setBackAction: (action: (() => void) | null) => void;
+  setCustomTitle: (title: string | null) => void;
 }
 
-export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContacts }) => {
+export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContacts, setBackAction, setCustomTitle }) => {
   const [isAdding, setIsAdding] = useState(false);
+
+  React.useEffect(() => {
+    if (isAdding) {
+      setBackAction(() => () => setIsAdding(false));
+      setCustomTitle('Add Contact');
+    } else {
+      setBackAction(null);
+      setCustomTitle(null);
+    }
+    return () => {
+      setBackAction(null);
+      setCustomTitle(null);
+    };
+  }, [isAdding, setBackAction, setCustomTitle]);
   const [contactToDelete, setContactToDelete] = useState<string | null>(null);
   const [newContact, setNewContact] = useState<Partial<TrustedContact>>({
     name: '',
@@ -121,8 +137,7 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContact
               className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none"
             />
             <div className="flex gap-2">
-              <button onClick={() => setIsAdding(false)} className="flex-1 py-3 text-gray-400 font-bold">Cancel</button>
-              <button onClick={handleAdd} className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold">Save</button>
+              <button onClick={handleAdd} className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Save</button>
             </div>
           </div>
         )}

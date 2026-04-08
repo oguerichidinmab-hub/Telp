@@ -8,10 +8,26 @@ interface ProfileViewProps {
   setProfile: React.Dispatch<React.SetStateAction<UserProfile>>;
   safetyPlan: SafetyPlan;
   setSafetyPlan: React.Dispatch<React.SetStateAction<SafetyPlan>>;
+  setBackAction: (action: (() => void) | null) => void;
+  setCustomTitle: (title: string | null) => void;
 }
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ profile, setProfile, safetyPlan, setSafetyPlan }) => {
+export const ProfileView: React.FC<ProfileViewProps> = ({ profile, setProfile, safetyPlan, setSafetyPlan, setBackAction, setCustomTitle }) => {
   const [activeSection, setActiveSection] = useState<'settings' | 'safetyPlan'>('settings');
+
+  React.useEffect(() => {
+    if (activeSection === 'safetyPlan') {
+      setBackAction(() => () => setActiveSection('settings'));
+      setCustomTitle('Safety Plan');
+    } else {
+      setBackAction(null);
+      setCustomTitle(null);
+    }
+    return () => {
+      setBackAction(null);
+      setCustomTitle(null);
+    };
+  }, [activeSection, setBackAction, setCustomTitle]);
   const [newPlanItem, setNewPlanItem] = useState('');
   const [planCategory, setPlanCategory] = useState<keyof SafetyPlan>('trustedPeople');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);

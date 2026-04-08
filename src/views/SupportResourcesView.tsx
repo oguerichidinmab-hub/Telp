@@ -16,11 +16,31 @@ import { GUIDANCE_STEPS, MOCK_RESOURCES } from '../constants';
 import { Resource } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 
-export const SupportResourcesView: React.FC = () => {
+export const SupportResourcesView: React.FC<{ 
+  setBackAction: (action: (() => void) | null) => void;
+  setCustomTitle: (title: string | null) => void;
+}> = ({ setBackAction, setCustomTitle }) => {
   const [activeSubTab, setActiveSubTab] = useState<'guidance' | 'education'>('guidance');
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  React.useEffect(() => {
+    if (selectedTopic) {
+      setBackAction(() => () => setSelectedTopic(null));
+      setCustomTitle(selectedTopic.charAt(0).toUpperCase() + selectedTopic.slice(1));
+    } else if (selectedResource) {
+      setBackAction(() => () => setSelectedResource(null));
+      setCustomTitle('Resource');
+    } else {
+      setBackAction(null);
+      setCustomTitle(null);
+    }
+    return () => {
+      setBackAction(null);
+      setCustomTitle(null);
+    };
+  }, [selectedTopic, selectedResource, setBackAction, setCustomTitle]);
 
   const topics = [
     { id: 'bullying', title: 'Bullying', description: 'Guidance on physical, verbal, and cyberbullying.', icon: UserX, color: 'text-blue-600', bg: 'bg-blue-50' },
@@ -53,14 +73,6 @@ export const SupportResourcesView: React.FC = () => {
 
     return (
       <div className="space-y-6 pb-12">
-        <button 
-          onClick={() => setSelectedTopic(null)}
-          className="flex items-center gap-2 text-blue-600 font-semibold mb-4"
-        >
-          <ArrowLeft size={20} />
-          Back to Guidance
-        </button>
-
         <div className="space-y-6">
           {topicData.signs && topicData.signs.length > 0 && (
             <div className="bg-amber-50 rounded-3xl p-6 border border-amber-100">
@@ -109,14 +121,6 @@ export const SupportResourcesView: React.FC = () => {
   if (selectedResource) {
     return (
       <div className="space-y-6">
-        <button 
-          onClick={() => setSelectedResource(null)}
-          className="flex items-center gap-2 text-blue-600 font-semibold mb-4"
-        >
-          <ArrowLeft size={20} />
-          Back to Education
-        </button>
-
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
           <div className="bg-blue-50 text-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mb-6">
             {getResourceIcon(selectedResource.icon)}
