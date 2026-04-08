@@ -12,7 +12,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab })
     { id: 'home', icon: Home, label: 'Home' },
     { id: 'support', icon: Shield, label: 'Support' },
     { id: 'report', icon: FileText, label: 'Report' },
-    { id: 'resources', icon: BookOpen, label: 'Resources' },
     { id: 'contacts', icon: Phone, label: 'Contacts' },
     { id: 'profile', icon: User, label: 'Profile' },
   ];

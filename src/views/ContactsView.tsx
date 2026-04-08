@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Phone, MessageSquare, MapPin, Plus, Trash2, Shield, Heart, User, Star } from 'lucide-react';
 import { TrustedContact } from '../types';
 import { MOCK_AUTHORITIES } from '../constants';
+import { ConfirmModal } from '../components/Modal';
 
 interface ContactsViewProps {
   contacts: TrustedContact[];
@@ -10,6 +11,7 @@ interface ContactsViewProps {
 
 export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContacts }) => {
   const [isAdding, setIsAdding] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState<string | null>(null);
   const [newContact, setNewContact] = useState<Partial<TrustedContact>>({
     name: '',
     relation: 'friend',
@@ -29,8 +31,11 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContact
     setNewContact({ name: '', relation: 'friend', phone: '' });
   };
 
-  const deleteContact = (id: string) => {
-    setContacts(contacts.filter(c => c.id !== id));
+  const deleteContact = () => {
+    if (contactToDelete) {
+      setContacts(contacts.filter(c => c.id !== contactToDelete));
+      setContactToDelete(null);
+    }
   };
 
   return (
@@ -144,7 +149,7 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContact
                   <a href={`tel:${contact.phone}`} className="p-3 bg-green-50 text-green-600 rounded-xl active:scale-90 transition-transform">
                     <Phone size={20} />
                   </a>
-                  <button onClick={() => deleteContact(contact.id)} className="p-3 text-gray-300 hover:text-red-500 transition-colors">
+                  <button onClick={() => setContactToDelete(contact.id)} className="p-3 text-gray-300 hover:text-red-500 transition-colors">
                     <Trash2 size={20} />
                   </button>
                 </div>
@@ -153,6 +158,17 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContact
           </div>
         )}
       </section>
+
+      <ConfirmModal
+        isOpen={!!contactToDelete}
+        onClose={() => setContactToDelete(null)}
+        onConfirm={deleteContact}
+        title="Remove Contact"
+        type="danger"
+        confirmText="Remove"
+      >
+        Are you sure you want to remove this trusted contact?
+      </ConfirmModal>
     </div>
   );
 };

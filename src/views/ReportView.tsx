@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { FileText, Calendar, Clock, MapPin, AlertCircle, Save, Send, Trash2, Plus } from 'lucide-react';
 import { IncidentReport } from '../types';
+import { ConfirmModal } from '../components/Modal';
 
 interface ReportViewProps {
   reports: IncidentReport[];
@@ -10,6 +11,7 @@ interface ReportViewProps {
 
 export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports }) => {
   const [isCreating, setIsCreating] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<IncidentReport>>({
     type: '',
     date: new Date().toISOString().split('T')[0],
@@ -45,8 +47,11 @@ export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports }) =
     });
   };
 
-  const deleteReport = (id: string) => {
-    setReports(reports.filter(r => r.id !== id));
+  const deleteReport = () => {
+    if (reportToDelete) {
+      setReports(reports.filter(r => r.id !== reportToDelete));
+      setReportToDelete(null);
+    }
   };
 
   if (isCreating) {
@@ -191,7 +196,7 @@ export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports }) =
                   <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{report.status}</span>
                   <h3 className="font-bold text-gray-800 text-lg">{report.type}</h3>
                 </div>
-                <button onClick={() => deleteReport(report.id)} className="text-gray-300 hover:text-red-500">
+                <button onClick={() => setReportToDelete(report.id)} className="text-gray-300 hover:text-red-500">
                   <Trash2 size={18} />
                 </button>
               </div>
@@ -223,6 +228,17 @@ export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports }) =
           Reports saved as "Private" are only visible to you. "Prepared" reports are ready to be shared with authorities if you choose to do so.
         </p>
       </div>
+
+      <ConfirmModal
+        isOpen={!!reportToDelete}
+        onClose={() => setReportToDelete(null)}
+        onConfirm={deleteReport}
+        title="Delete Report"
+        type="danger"
+        confirmText="Delete"
+      >
+        Are you sure you want to delete this incident report? This action cannot be undone.
+      </ConfirmModal>
     </div>
   );
 };

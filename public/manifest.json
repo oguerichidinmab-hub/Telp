@@ -1,0 +1,21 @@
+{
+  "name": "TELP - Youth Support",
+  "short_name": "TELP",
+  "description": "A safe, youth-friendly support platform for teens facing bullying, abuse, and sexual violence.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "https://picsum.photos/192/192",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://picsum.photos/512/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

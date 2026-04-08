@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Shield, Eye, EyeOff, Moon, Sun, ChevronRight, LogOut, Save, Plus, Trash2 } from 'lucide-react';
 import { UserProfile, SafetyPlan } from '../types';
+import { ConfirmModal } from '../components/Modal';
 
 interface ProfileViewProps {
   profile: UserProfile;
@@ -13,6 +14,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, setProfile, s
   const [activeSection, setActiveSection] = useState<'settings' | 'safetyPlan'>('settings');
   const [newPlanItem, setNewPlanItem] = useState('');
   const [planCategory, setPlanCategory] = useState<keyof SafetyPlan>('trustedPeople');
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const toggleDisguise = () => {
     setProfile(prev => ({ ...prev, disguisedMode: !prev.disguisedMode }));
@@ -34,6 +37,19 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, setProfile, s
     }));
   };
 
+  const handleLogout = () => {
+    setProfile(prev => ({ ...prev, onboarded: false }));
+  };
+
+  const handleResetData = () => {
+    localStorage.clear();
+    window.location.reload();
+  };
+
+  const togglePrivacy = () => {
+    setProfile(prev => ({ ...prev, privacyMode: !prev.privacyMode }));
+  };
+
   return (
     <div className="space-y-6">
       {/* Profile Header */}
@@ -42,7 +58,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, setProfile, s
           <User size={32} />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-gray-800">{profile.name || 'Friend'}</h3>
+          <h3 className="text-xl font-bold text-gray-800">
+            {profile.privacyMode ? 'User' : (profile.name || 'Friend')}
+          </h3>
           <p className="text-sm text-gray-500">{profile.ageRange} • {profile.language}</p>
         </div>
       </div>
@@ -87,21 +105,42 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, setProfile, s
                 </div>
                 <span className="font-bold text-gray-700">Privacy Mode</span>
               </div>
-              <button className="w-12 h-6 bg-gray-300 rounded-full relative">
-                <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full" />
+              <button 
+                onClick={togglePrivacy}
+                className={`w-12 h-6 rounded-full transition-colors relative ${profile.privacyMode ? 'bg-blue-600' : 'bg-gray-300'}`}
+              >
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${profile.privacyMode ? 'left-7' : 'left-1'}`} />
               </button>
             </div>
           </section>
 
-          <button className="w-full bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex items-center justify-between group">
-            <div className="flex items-center gap-3">
-              <div className="bg-gray-50 text-gray-600 p-2 rounded-lg">
-                <LogOut size={18} />
+          <div className="space-y-3">
+            <button 
+              onClick={() => setShowLogoutConfirm(true)}
+              className="w-full bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex items-center justify-between group active:bg-gray-50"
+            >
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-50 text-blue-600 p-2 rounded-lg">
+                  <LogOut size={18} />
+                </div>
+                <span className="font-bold text-gray-700">Log Out</span>
               </div>
-              <span className="font-bold text-gray-700">Reset App Data</span>
-            </div>
-            <ChevronRight size={20} className="text-gray-300" />
-          </button>
+              <ChevronRight size={20} className="text-gray-300" />
+            </button>
+
+            <button 
+              onClick={() => setShowResetConfirm(true)}
+              className="w-full bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex items-center justify-between group active:bg-gray-50"
+            >
+              <div className="flex items-center gap-3">
+                <div className="bg-red-50 text-red-600 p-2 rounded-lg">
+                  <Trash2 size={18} />
+                </div>
+                <span className="font-bold text-gray-700">Reset App Data</span>
+              </div>
+              <ChevronRight size={20} className="text-gray-300" />
+            </button>
+          </div>
         </div>
       ) : (
         <div className="space-y-6">
@@ -161,6 +200,26 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, setProfile, s
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleLogout}
+        title="Log Out"
+      >
+        Are you sure you want to log out? This will reset your current session and take you back to onboarding.
+      </ConfirmModal>
+
+      <ConfirmModal
+        isOpen={showResetConfirm}
+        onClose={() => setShowResetConfirm(false)}
+        onConfirm={handleResetData}
+        title="Reset All Data"
+        type="danger"
+        confirmText="Reset Everything"
+      >
+        This will permanently delete all your saved reports, contacts, and safety plans. This action cannot be undone.
+      </ConfirmModal>
     </div>
   );
 };

@@ -6,6 +6,7 @@ interface Props {
 
 interface State {
   hasError: boolean;
+  error?: Error;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -13,32 +14,37 @@ export class ErrorBoundary extends Component<Props, State> {
     hasError: false
   };
 
-  public static getDerivedStateFromError(_: Error): State {
-    return { hasError: true };
+  public static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
   public render() {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50 text-center">
-          <div className="space-y-4">
-            <h1 className="text-2xl font-bold text-gray-800">Something went wrong.</h1>
-            <p className="text-gray-500">We're sorry for the inconvenience. Please try refreshing the app.</p>
+          <div className="bg-white p-8 rounded-3xl shadow-xl border border-gray-100 max-w-sm space-y-6">
+            <div className="bg-red-100 text-red-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+              <span className="text-2xl font-bold">!</span>
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-xl font-bold text-gray-800">Something went wrong</h1>
+              <p className="text-sm text-gray-500">The app encountered an unexpected error. Don't worry, your data is safe.</p>
+            </div>
             <button 
               onClick={() => window.location.reload()}
-              className="bg-blue-600 text-white px-6 py-2 rounded-full font-bold"
+              className="w-full bg-blue-600 text-white py-3 rounded-2xl font-bold active:scale-95 transition-transform shadow-lg shadow-blue-200"
             >
-              Refresh
+              Refresh App
             </button>
           </div>
         </div>
       );
     }
 
-    return this.props.children;
+    return (this as any).props.children;
   }
 }

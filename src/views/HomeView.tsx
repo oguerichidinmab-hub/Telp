@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Shield, AlertCircle, Phone, FileText, MessageCircle, Heart, ChevronRight, BookOpen } from 'lucide-react';
-import { Mood, MoodEntry, UserProfile } from '../types';
+import { Mood, MoodEntry, UserProfile, SafetyPlan } from '../types';
 
 interface HomeViewProps {
   setActiveTab: (tab: string) => void;
   moods: MoodEntry[];
   setMoods: React.Dispatch<React.SetStateAction<MoodEntry[]>>;
   profile: UserProfile;
+  safetyPlan: SafetyPlan;
 }
 
-export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMoods, profile }) => {
+export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMoods, profile, safetyPlan }) => {
   const [showMoodPicker, setShowMoodPicker] = useState(true);
+
+  const hasSafetyPlan = safetyPlan.trustedPeople.length > 0 || 
+                        safetyPlan.safePlaces.length > 0 || 
+                        safetyPlan.emergencySteps.length > 0;
 
   const handleMoodSelect = (mood: Mood) => {
     const today = new Date().toISOString().split('T')[0];
@@ -79,6 +84,24 @@ export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMood
       <section className="space-y-3">
         <h3 className="font-bold text-gray-800 px-1">Quick Access</h3>
         <div className="grid grid-cols-1 gap-3">
+          {hasSafetyPlan && (
+            <button 
+              onClick={() => setActiveTab('profile')}
+              className="bg-blue-50 p-4 rounded-2xl border border-blue-100 flex items-center justify-between group active:bg-blue-100"
+            >
+              <div className="flex items-center gap-4">
+                <div className="bg-blue-600 p-3 rounded-xl text-white">
+                  <Shield size={24} />
+                </div>
+                <div className="text-left">
+                  <p className="font-bold text-blue-900">Your Safety Plan</p>
+                  <p className="text-xs text-blue-700">Quickly view your safe steps</p>
+                </div>
+              </div>
+              <ChevronRight size={20} className="text-blue-400" />
+            </button>
+          )}
+
           <button 
             onClick={() => setActiveTab('support')}
             className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between group active:bg-gray-50"
@@ -88,24 +111,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMood
                 <Shield size={24} />
               </div>
               <div className="text-left">
-                <p className="font-bold text-gray-800">Safety Guidance</p>
-                <p className="text-xs text-gray-500">Steps to stay safe</p>
-              </div>
-            </div>
-            <ChevronRight size={20} className="text-gray-300 group-hover:text-gray-400" />
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('resources')}
-            className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between group active:bg-gray-50"
-          >
-            <div className="flex items-center gap-4">
-              <div className="bg-purple-100 p-3 rounded-xl text-purple-600">
-                <BookOpen size={24} />
-              </div>
-              <div className="text-left">
-                <p className="font-bold text-gray-800">Learn More</p>
-                <p className="text-xs text-gray-500">Resources & education</p>
+                <p className="font-bold text-gray-800">Support & Resources</p>
+                <p className="text-xs text-gray-500">Guidance & education</p>
               </div>
             </div>
             <ChevronRight size={20} className="text-gray-300 group-hover:text-gray-400" />

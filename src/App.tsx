@@ -7,9 +7,8 @@ import {
 } from './components/Navigation';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { HomeView } from './views/HomeView';
-import { SupportView } from './views/SupportView';
+import { SupportResourcesView } from './views/SupportResourcesView';
 import { ReportView } from './views/ReportView';
-import { ResourcesView } from './views/ResourcesView';
 import { ContactsView } from './views/ContactsView';
 import { ProfileView } from './views/ProfileView';
 import { OnboardingView } from './views/OnboardingView';
@@ -33,10 +32,9 @@ export default function App() {
 
   const renderView = () => {
     switch (activeTab) {
-      case 'home': return <HomeView setActiveTab={setActiveTab} moods={moods} setMoods={setMoods} profile={profile} />;
-      case 'support': return <SupportView />;
+      case 'home': return <HomeView setActiveTab={setActiveTab} moods={moods} setMoods={setMoods} profile={profile} safetyPlan={safetyPlan} />;
+      case 'support': return <SupportResourcesView />;
       case 'report': return <ReportView reports={reports} setReports={setReports} />;
-      case 'resources': return <ResourcesView />;
       case 'contacts': return <ContactsView contacts={contacts} setContacts={setContacts} />;
       case 'profile': return <ProfileView profile={profile} setProfile={setProfile} safetyPlan={safetyPlan} setSafetyPlan={setSafetyPlan} />;
       default: return <HomeView setActiveTab={setActiveTab} moods={moods} setMoods={setMoods} profile={profile} />;
@@ -44,11 +42,11 @@ export default function App() {
   };
 
   const getTitle = () => {
+    const displayName = profile.privacyMode ? 'User' : (profile.name || 'Friend');
     switch (activeTab) {
-      case 'home': return 'Hello, ' + (profile.name || 'Friend');
-      case 'support': return 'Get Support';
+      case 'home': return 'Hello, ' + displayName;
+      case 'support': return 'Support & Resources';
       case 'report': return 'Report Incident';
-      case 'resources': return 'Resources';
       case 'contacts': return 'Help & Contacts';
       case 'profile': return 'Your Profile';
       default: return 'TELP';
