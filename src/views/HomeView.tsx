@@ -20,11 +20,13 @@ export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMood
                         safetyPlan.safePlaces.length > 0 || 
                         safetyPlan.emergencySteps.length > 0;
 
+  const today = new Date().toISOString().split('T')[0];
+  const currentMood = moods.find(m => m.date === today);
+
   const handleMoodSelect = (mood: Mood) => {
-    const today = new Date().toISOString().split('T')[0];
     const newEntry: MoodEntry = { date: today, mood };
     setMoods(prev => [newEntry, ...prev.filter(m => m.date !== today)]);
-    setShowMoodPicker(false);
+    // We don't necessarily need to hide it, or we can show a "success" state
   };
 
   const moodEmojis: Record<Mood, string> = {
@@ -53,14 +55,14 @@ export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMood
           <div className="grid grid-cols-2 gap-3">
             <button 
               onClick={() => setActiveTab('contacts')}
-              className="bg-white/20 hover:bg-white/30 p-3 rounded-2xl flex flex-col items-center gap-2 transition-colors backdrop-blur-sm"
+              className="bg-white/20 hover:bg-white/30 p-3 rounded-2xl flex flex-col items-center gap-2 transition-all active:scale-95 backdrop-blur-sm"
             >
               <Phone size={20} />
               <span className="text-xs font-semibold">Emergency</span>
             </button>
             <button 
               onClick={() => setActiveTab('report')}
-              className="bg-white/20 hover:bg-white/30 p-3 rounded-2xl flex flex-col items-center gap-2 transition-colors backdrop-blur-sm"
+              className="bg-white/20 hover:bg-white/30 p-3 rounded-2xl flex flex-col items-center gap-2 transition-all active:scale-95 backdrop-blur-sm"
             >
               <FileText size={20} />
               <span className="text-xs font-semibold">Report</span>
@@ -70,26 +72,40 @@ export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMood
       </section>
 
       {/* Mood Check-in */}
-      {showMoodPicker && (
-        <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-          <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <Heart size={18} className="text-pink-500" />
-            How are you feeling?
+      <section className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-gray-800 flex items-center gap-2">
+            <Heart size={18} className={`${currentMood ? 'text-red-500' : 'text-pink-500'}`} />
+            {currentMood ? "Today's Mood" : "How are you feeling?"}
           </h3>
-          <div className="grid grid-cols-3 gap-4">
-            {(Object.keys(moodEmojis) as Mood[]).map((mood) => (
+          {currentMood && (
+            <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase">
+              Updated
+            </span>
+          )}
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          {(Object.keys(moodEmojis) as Mood[]).map((mood) => {
+            const isSelected = currentMood?.mood === mood;
+            return (
               <button
                 key={mood}
                 onClick={() => handleMoodSelect(mood)}
-                className="flex flex-col items-center gap-1 p-2 hover:bg-gray-50 rounded-xl transition-colors"
+                className={`flex flex-col items-center gap-1 p-3 rounded-2xl transition-all active:scale-90 ${
+                  isSelected ? 'bg-blue-50 ring-2 ring-blue-500' : 'hover:bg-gray-50'
+                }`}
               >
-                <span className="text-3xl">{moodEmojis[mood]}</span>
-                <span className="text-[10px] capitalize text-gray-500">{mood}</span>
+                <span className={`text-3xl transition-transform ${isSelected ? 'scale-110' : ''}`}>
+                  {moodEmojis[mood]}
+                </span>
+                <span className={`text-[10px] capitalize font-bold ${isSelected ? 'text-blue-600' : 'text-gray-500'}`}>
+                  {mood}
+                </span>
               </button>
-            ))}
-          </div>
-        </section>
-      )}
+            );
+          })}
+        </div>
+      </section>
 
       {/* Quick Actions */}
       <section className="space-y-3">

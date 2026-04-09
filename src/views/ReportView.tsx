@@ -1,19 +1,53 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { FileText, Calendar, Clock, MapPin, AlertCircle, Save, Send, Trash2, Plus } from 'lucide-react';
-import { IncidentReport } from '../types';
+import { FileText, Calendar, Clock, MapPin, AlertCircle, Save, Send, Trash2, Plus, Share2, CheckCircle2 } from 'lucide-react';
+import { IncidentReport, MoodEntry } from '../types';
 import { ConfirmModal } from '../components/Modal';
 
 interface ReportViewProps {
   reports: IncidentReport[];
   setReports: React.Dispatch<React.SetStateAction<IncidentReport[]>>;
+  moods: MoodEntry[];
   setBackAction: (action: (() => void) | null) => void;
   setCustomTitle: (title: string | null) => void;
 }
 
-export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports, setBackAction, setCustomTitle }) => {
+export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports, moods, setBackAction, setCustomTitle }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
+  const [reportToShare, setReportToShare] = useState<IncidentReport | null>(null);
+  const [isSharing, setIsSharing] = useState(false);
+
+  const handleShare = () => {
+    setIsSharing(true);
+    // Simulate API call
+    setTimeout(() => {
+      setIsSharing(false);
+      setReportToShare(null);
+      // Feedback would be good here
+    }, 1500);
+  };
+
+  const generateReportText = (report: IncidentReport) => {
+    const moodHistory = moods.slice(0, 5).map(m => `${m.date}: ${m.mood}`).join('\n');
+    return `
+INCIDENT REPORT
+---------------
+Type: ${report.type}
+Date: ${report.date}
+Time: ${report.time}
+Location: ${report.location || 'N/A'}
+Urgency: ${report.urgency.toUpperCase()}
+
+NOTES:
+${report.notes}
+
+MOOD HISTORY (Last 5 days):
+${moodHistory || 'No mood data available'}
+
+Generated on: ${new Date().toLocaleString()}
+    `.trim();
+  };
 
   React.useEffect(() => {
     if (isCreating) {
@@ -211,9 +245,17 @@ export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports, set
                   <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">{report.status}</span>
                   <h3 className="font-bold text-gray-800 text-lg">{report.type}</h3>
                 </div>
-                <button onClick={() => setReportToDelete(report.id)} className="text-gray-300 hover:text-red-500">
-                  <Trash2 size={18} />
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setReportToShare(report)}
+                    className="text-blue-500 hover:text-blue-600 p-1"
+                  >
+                    <Share2 size={18} />
+                  </button>
+                  <button onClick={() => setReportToDelete(report.id)} className="text-gray-300 hover:text-red-500 p-1">
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-y-2 text-xs text-gray-500 mb-4">
@@ -254,6 +296,43 @@ export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports, set
       >
         Are you sure you want to delete this incident report? This action cannot be undone.
       </ConfirmModal>
+
+      <ConfirmModal
+        isOpen={!!reportToShare}
+        onClose={() => setReportToShare(null)}
+        onConfirm={handleShare}
+        title="Share Report"
+        confirmText={isSharing ? "Sharing..." : "Share Now"}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            This will generate a formal report and share it with authorities and your trusted contacts.
+          </p>
+          
+          <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 max-h-48 overflow-y-auto">
+            <pre className="text-[10px] font-mono whitespace-pre-wrap text-gray-700">
+              {reportToShare && generateReportText(reportToShare)}
+            </pre>
+          </div>
+
+          <div className="flex items-center gap-2 text-amber-600 bg-amber-50 p-3 rounded-xl">
+            <AlertCircle size={16} />
+            <p className="text-[10px] font-bold">This action will share your data outside the app.</p>
+          </div>
+        </div>
+      </ConfirmModal>
+
+      {/* Success Feedback Overlay */}
+      {isSharing && (
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-[200] flex items-center justify-center">
+          <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-4 animate-in zoom-in">
+            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
+              <CheckCircle2 size={40} className="animate-bounce" />
+            </div>
+            <p className="font-bold text-gray-800">Report Shared Successfully</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -27,6 +27,26 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContact
       setCustomTitle(null);
     };
   }, [isAdding, setBackAction, setCustomTitle]);
+  const [editingContact, setEditingContact] = useState<TrustedContact | null>(null);
+  const [showInfo, setShowInfo] = useState<typeof MOCK_AUTHORITIES[0] | null>(null);
+
+  React.useEffect(() => {
+    if (isAdding || editingContact) {
+      setBackAction(() => () => {
+        setIsAdding(false);
+        setEditingContact(null);
+      });
+      setCustomTitle(editingContact ? 'Edit Contact' : 'Add Contact');
+    } else {
+      setBackAction(null);
+      setCustomTitle(null);
+    }
+    return () => {
+      setBackAction(null);
+      setCustomTitle(null);
+    };
+  }, [isAdding, editingContact, setBackAction, setCustomTitle]);
+
   const [contactToDelete, setContactToDelete] = useState<string | null>(null);
   const [newContact, setNewContact] = useState<Partial<TrustedContact>>({
     name: '',
@@ -45,6 +65,12 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContact
     setContacts([...contacts, contact]);
     setIsAdding(false);
     setNewContact({ name: '', relation: 'friend', phone: '' });
+  };
+
+  const handleUpdate = () => {
+    if (!editingContact || !editingContact.name || !editingContact.phone) return;
+    setContacts(contacts.map(c => c.id === editingContact.id ? editingContact : c));
+    setEditingContact(null);
   };
 
   const deleteContact = () => {
@@ -108,7 +134,10 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContact
                       <Phone size={18} />
                       {auth.phone.startsWith('*') ? 'Dial Code' : 'Call'}
                     </a>
-                    <button className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl flex items-center justify-center gap-2 font-bold active:scale-95 transition-transform">
+                    <button 
+                      onClick={() => setShowInfo(auth)}
+                      className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl flex items-center justify-center gap-2 font-bold active:scale-95 transition-transform"
+                    >
                       <MapPin size={18} />
                       Info
                     </button>
@@ -129,26 +158,39 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContact
           </h3>
           <button 
             onClick={() => setIsAdding(true)}
-            className="text-blue-600 font-bold text-sm flex items-center gap-1"
+            className="bg-blue-600 text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-1 shadow-md active:scale-95 transition-transform"
           >
             <Plus size={16} />
-            Add
+            Add New
           </button>
         </div>
 
-        {isAdding && (
+        {(isAdding || editingContact) && (
           <div className="bg-white p-6 rounded-3xl shadow-xl border border-blue-100 space-y-4 animate-in fade-in slide-in-from-top-4">
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="font-bold text-gray-800">{editingContact ? 'Edit Contact' : 'New Trusted Person'}</h4>
+              <button 
+                onClick={() => { setIsAdding(false); setEditingContact(null); }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                Cancel
+              </button>
+            </div>
             <input 
               type="text"
               placeholder="Name"
-              value={newContact.name}
-              onChange={e => setNewContact({...newContact, name: e.target.value})}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none"
+              value={editingContact ? editingContact.name : newContact.name}
+              onChange={e => editingContact 
+                ? setEditingContact({...editingContact, name: e.target.value})
+                : setNewContact({...newContact, name: e.target.value})}
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500"
             />
             <select 
-              value={newContact.relation}
-              onChange={e => setNewContact({...newContact, relation: e.target.value as any})}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none"
+              value={editingContact ? editingContact.relation : newContact.relation}
+              onChange={e => editingContact
+                ? setEditingContact({...editingContact, relation: e.target.value as any})
+                : setNewContact({...newContact, relation: e.target.value as any})}
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="parent">Parent/Guardian</option>
               <option value="relative">Relative</option>
@@ -160,13 +202,18 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContact
             <input 
               type="tel"
               placeholder="Phone Number"
-              value={newContact.phone}
-              onChange={e => setNewContact({...newContact, phone: e.target.value})}
-              className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none"
+              value={editingContact ? editingContact.phone : newContact.phone}
+              onChange={e => editingContact
+                ? setEditingContact({...editingContact, phone: e.target.value})
+                : setNewContact({...newContact, phone: e.target.value})}
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <div className="flex gap-2">
-              <button onClick={handleAdd} className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Save</button>
-            </div>
+            <button 
+              onClick={editingContact ? handleUpdate : handleAdd} 
+              className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-transform"
+            >
+              {editingContact ? 'Update Contact' : 'Save Contact'}
+            </button>
           </div>
         )}
 
@@ -192,6 +239,12 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContact
                   <a href={`tel:${contact.phone}`} className="p-3 bg-green-50 text-green-600 rounded-xl active:scale-90 transition-transform">
                     <Phone size={20} />
                   </a>
+                  <button 
+                    onClick={() => setEditingContact(contact)}
+                    className="p-3 text-gray-400 hover:text-blue-500 transition-colors"
+                  >
+                    <Plus size={20} className="rotate-45" /> {/* Using Plus as an edit icon placeholder or I could use Edit if I import it */}
+                  </button>
                   <button onClick={() => setContactToDelete(contact.id)} className="p-3 text-gray-300 hover:text-red-500 transition-colors">
                     <Trash2 size={20} />
                   </button>
@@ -211,6 +264,23 @@ export const ContactsView: React.FC<ContactsViewProps> = ({ contacts, setContact
         confirmText="Remove"
       >
         Are you sure you want to remove this trusted contact?
+      </ConfirmModal>
+
+      <ConfirmModal
+        isOpen={!!showInfo}
+        onClose={() => setShowInfo(null)}
+        onConfirm={() => setShowInfo(null)}
+        title={showInfo?.name || 'Information'}
+        confirmText="Got it"
+      >
+        <div className="space-y-3 text-sm text-gray-600">
+          <p>{showInfo?.description}</p>
+          <div className="bg-gray-50 p-3 rounded-xl">
+            <p className="font-bold text-gray-800 mb-1">Contact Details:</p>
+            <p className="font-mono text-blue-600">{showInfo?.phone}</p>
+          </div>
+          <p className="text-xs italic">This is an official support service available in {showInfo?.distance}.</p>
+        </div>
       </ConfirmModal>
     </div>
   );
