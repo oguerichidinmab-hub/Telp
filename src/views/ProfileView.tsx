@@ -54,7 +54,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, setProfile, s
   };
 
   const handleLogout = () => {
-    setProfile(prev => ({ ...prev, onboarded: false }));
+    setProfile(prev => ({ ...prev, isLoggedIn: false }));
   };
 
   const handleResetData = () => {

@@ -11,7 +11,8 @@ export function useLocalStorage() {
       location: '',
       onboarded: false,
       privacyMode: false,
-      disguisedMode: false
+      disguisedMode: false,
+      isLoggedIn: false
     };
   });
 

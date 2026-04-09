@@ -8,6 +8,9 @@ export interface UserProfile {
   onboarded: boolean;
   privacyMode: boolean;
   disguisedMode: boolean;
+  isLoggedIn: boolean;
+  email?: string;
+  username?: string;
 }
 
 export interface TrustedContact {

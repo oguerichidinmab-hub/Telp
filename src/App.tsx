@@ -12,8 +12,9 @@ import { ReportView } from './views/ReportView';
 import { ContactsView } from './views/ContactsView';
 import { ProfileView } from './views/ProfileView';
 import { OnboardingView } from './views/OnboardingView';
+import { AuthView } from './views/AuthView';
 import { AssistantView } from './views/AssistantView';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Sparkles } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -34,15 +35,19 @@ export default function App() {
     setCustomTitle(null);
   }, [activeTab]);
 
+  if (!profile.isLoggedIn) {
+    return <AuthView onLogin={(p) => setProfile({ ...profile, ...p, isLoggedIn: true })} />;
+  }
+
   if (!profile.onboarded) {
-    return <OnboardingView onComplete={(p) => setProfile({ ...p, onboarded: true })} />;
+    return <OnboardingView onComplete={(p) => setProfile({ ...profile, ...p, onboarded: true })} />;
   }
 
   const renderView = () => {
     switch (activeTab) {
       case 'home': return <HomeView setActiveTab={setActiveTab} moods={moods} setMoods={setMoods} profile={profile} safetyPlan={safetyPlan} />;
       case 'support': return <SupportResourcesView setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
-      case 'report': return <ReportView reports={reports} setReports={setReports} moods={moods} setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
+      case 'report': return <ReportView reports={reports} setReports={setReports} moods={moods} contacts={contacts} setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
       case 'contacts': return <ContactsView contacts={contacts} setContacts={setContacts} setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
       case 'profile': return <ProfileView profile={profile} setProfile={setProfile} safetyPlan={safetyPlan} setSafetyPlan={setSafetyPlan} setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
       default: return <HomeView setActiveTab={setActiveTab} moods={moods} setMoods={setMoods} profile={profile} />;
@@ -84,14 +89,16 @@ export default function App() {
 
         <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        {/* Floating Assistant Button */}
-        <button
+        {/* Floating Assistant Button (FAB) */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.9 }}
           onClick={() => setShowAssistant(true)}
-          className="fixed bottom-24 right-6 bg-blue-600 text-white p-4 rounded-full shadow-2xl z-40 active:scale-90 transition-transform"
-          style={{ left: 'calc(50% + 120px)', transform: 'translateX(-50%)' }}
+          className="fixed bottom-24 right-6 bg-gradient-to-tr from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-[0_8px_24px_rgba(37,99,235,0.3)] z-40 flex items-center justify-center transition-shadow"
+          style={{ left: 'calc(50% + 140px)', transform: 'translateX(-50%)' }}
         >
-          <MessageCircle size={28} />
-        </button>
+          <Sparkles size={24} />
+        </motion.button>
 
         {/* Assistant Modal */}
         <AnimatePresence>

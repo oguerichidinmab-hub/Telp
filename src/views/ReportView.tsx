@@ -1,31 +1,40 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { FileText, Calendar, Clock, MapPin, AlertCircle, Save, Send, Trash2, Plus, Share2, CheckCircle2 } from 'lucide-react';
-import { IncidentReport, MoodEntry } from '../types';
+import { IncidentReport, MoodEntry, TrustedContact } from '../types';
 import { ConfirmModal } from '../components/Modal';
 
 interface ReportViewProps {
   reports: IncidentReport[];
   setReports: React.Dispatch<React.SetStateAction<IncidentReport[]>>;
   moods: MoodEntry[];
+  contacts: TrustedContact[];
   setBackAction: (action: (() => void) | null) => void;
   setCustomTitle: (title: string | null) => void;
 }
 
-export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports, moods, setBackAction, setCustomTitle }) => {
+export const ReportView: React.FC<ReportViewProps> = ({ reports, setReports, moods, contacts, setBackAction, setCustomTitle }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<string | null>(null);
   const [reportToShare, setReportToShare] = useState<IncidentReport | null>(null);
+  const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [isSharing, setIsSharing] = useState(false);
 
   const handleShare = () => {
+    if (selectedContacts.length === 0) return;
     setIsSharing(true);
     // Simulate API call
     setTimeout(() => {
       setIsSharing(false);
       setReportToShare(null);
-      // Feedback would be good here
+      setSelectedContacts([]);
     }, 1500);
+  };
+
+  const toggleContact = (id: string) => {
+    setSelectedContacts(prev => 
+      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    );
   };
 
   const generateReportText = (report: IncidentReport) => {
@@ -299,17 +308,50 @@ Generated on: ${new Date().toLocaleString()}
 
       <ConfirmModal
         isOpen={!!reportToShare}
-        onClose={() => setReportToShare(null)}
+        onClose={() => { setReportToShare(null); setSelectedContacts([]); }}
         onConfirm={handleShare}
         title="Share Report"
         confirmText={isSharing ? "Sharing..." : "Share Now"}
+        disabled={selectedContacts.length === 0}
       >
         <div className="space-y-4">
           <p className="text-sm text-gray-600">
-            This will generate a formal report and share it with authorities and your trusted contacts.
+            Select the contacts you want to share this report with.
           </p>
+
+          <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+            {contacts.length === 0 ? (
+              <p className="text-xs text-amber-600 bg-amber-50 p-3 rounded-xl">
+                No trusted contacts found. Please add them in the Contacts tab first.
+              </p>
+            ) : (
+              contacts.map(contact => (
+                <button
+                  key={contact.id}
+                  onClick={() => toggleContact(contact.id)}
+                  className={`w-full flex items-center justify-between p-3 rounded-2xl border transition-all ${
+                    selectedContacts.includes(contact.id)
+                      ? 'bg-blue-50 border-blue-200 ring-1 ring-blue-200'
+                      : 'bg-white border-gray-100 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                      selectedContacts.includes(contact.id) ? 'bg-blue-600 border-blue-600' : 'border-gray-300'
+                    }`}>
+                      {selectedContacts.includes(contact.id) && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-2 h-2 bg-white rounded-full" />}
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs font-bold text-gray-800">{contact.name}</p>
+                      <p className="text-[10px] text-gray-400 capitalize">{contact.relation}</p>
+                    </div>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
           
-          <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 max-h-48 overflow-y-auto">
+          <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 max-h-32 overflow-y-auto">
             <pre className="text-[10px] font-mono whitespace-pre-wrap text-gray-700">
               {reportToShare && generateReportText(reportToShare)}
             </pre>
@@ -317,7 +359,7 @@ Generated on: ${new Date().toLocaleString()}
 
           <div className="flex items-center gap-2 text-amber-600 bg-amber-50 p-3 rounded-xl">
             <AlertCircle size={16} />
-            <p className="text-[10px] font-bold">This action will share your data outside the app.</p>
+            <p className="text-[10px] font-bold">This will share your data with {selectedContacts.length} contact(s).</p>
           </div>
         </div>
       </ConfirmModal>
