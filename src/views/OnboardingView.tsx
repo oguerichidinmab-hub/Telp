@@ -5,14 +5,15 @@ import { UserProfile } from '../types';
 
 interface OnboardingViewProps {
   onComplete: (profile: Partial<UserProfile>) => void;
+  profile: UserProfile;
 }
 
 import { Logo } from '../components/Logo';
 
-export const OnboardingView: React.FC<OnboardingViewProps> = ({ onComplete }) => {
+export const OnboardingView: React.FC<OnboardingViewProps> = ({ onComplete, profile }) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Partial<UserProfile>>({
-    name: '',
+    name: profile.username || (profile.email ? profile.email.split('@')[0] : ''),
     ageRange: '',
     language: 'English',
     location: '',

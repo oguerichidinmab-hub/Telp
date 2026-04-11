@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Shield, Eye, EyeOff, Moon, Sun, ChevronRight, LogOut, Save, Plus, Trash2 } from 'lucide-react';
+import { User, Shield, Eye, EyeOff, Moon, Sun, ChevronRight, LogOut, Save, Plus, Trash2, Edit2, X } from 'lucide-react';
 import { UserProfile, SafetyPlan } from '../types';
 import { ConfirmModal } from '../components/Modal';
 
@@ -14,11 +14,20 @@ interface ProfileViewProps {
 
 export const ProfileView: React.FC<ProfileViewProps> = ({ profile, setProfile, safetyPlan, setSafetyPlan, setBackAction, setCustomTitle }) => {
   const [activeSection, setActiveSection] = useState<'settings' | 'safetyPlan'>('settings');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    name: profile.name || '',
+    ageRange: profile.ageRange || '',
+    language: profile.language || ''
+  });
 
   React.useEffect(() => {
     if (activeSection === 'safetyPlan') {
       setBackAction(() => () => setActiveSection('settings'));
       setCustomTitle('Safety Plan');
+    } else if (isEditing) {
+      setBackAction(() => () => setIsEditing(false));
+      setCustomTitle('Edit Profile');
     } else {
       setBackAction(null);
       setCustomTitle(null);
@@ -27,7 +36,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, setProfile, s
       setBackAction(null);
       setCustomTitle(null);
     };
-  }, [activeSection, setBackAction, setCustomTitle]);
+  }, [activeSection, isEditing, setBackAction, setCustomTitle]);
+
+  const handleSaveProfile = () => {
+    setProfile(prev => ({
+      ...prev,
+      ...editData
+    }));
+    setIsEditing(false);
+  };
   const [newPlanItem, setNewPlanItem] = useState('');
   const [planCategory, setPlanCategory] = useState<keyof SafetyPlan>('trustedPeople');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -69,16 +86,68 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ profile, setProfile, s
   return (
     <div className="space-y-6">
       {/* Profile Header */}
-      <div className="flex items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-        <div className="bg-blue-100 text-blue-600 p-4 rounded-full">
-          <User size={32} />
-        </div>
-        <div>
-          <h3 className="text-xl font-bold text-gray-800">
-            {profile.privacyMode ? 'User' : (profile.name || 'Friend')}
-          </h3>
-          <p className="text-sm text-gray-500">{profile.ageRange} • {profile.language}</p>
-        </div>
+      <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+        {isEditing ? (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-bold text-gray-800">Edit Details</h4>
+              <button onClick={() => setIsEditing(false)} className="text-gray-400">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Name / Nickname</label>
+                <input 
+                  type="text"
+                  value={editData.name}
+                  onChange={e => setEditData({...editData, name: e.target.value})}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none text-sm"
+                  placeholder="Your name"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Age Range</label>
+                <select 
+                  value={editData.ageRange}
+                  onChange={e => setEditData({...editData, ageRange: e.target.value})}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 outline-none text-sm"
+                >
+                  <option value="13-15">13 - 15 years old</option>
+                  <option value="16-18">16 - 18 years old</option>
+                  <option value="19+">19+ years old</option>
+                </select>
+              </div>
+              <button 
+                onClick={handleSaveProfile}
+                className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform"
+              >
+                <Save size={18} />
+                Save Changes
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-blue-100 text-blue-600 p-4 rounded-full">
+                <User size={32} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">
+                  {profile.name || 'Friend'}
+                </h3>
+                <p className="text-sm text-gray-500">{profile.ageRange} • {profile.language}</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setIsEditing(true)}
+              className="bg-gray-50 text-gray-600 p-3 rounded-2xl hover:bg-gray-100 active:scale-90 transition-all"
+            >
+              <Edit2 size={20} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Tabs */}

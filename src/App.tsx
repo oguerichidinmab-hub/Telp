@@ -35,12 +35,12 @@ export default function App() {
     setCustomTitle(null);
   }, [activeTab]);
 
-  if (!profile.isLoggedIn) {
-    return <AuthView onLogin={(p) => setProfile({ ...profile, ...p, isLoggedIn: true })} />;
+  if (!profile.onboarded) {
+    return <OnboardingView profile={profile} onComplete={(p) => setProfile({ ...profile, ...p, onboarded: true })} />;
   }
 
-  if (!profile.onboarded) {
-    return <OnboardingView onComplete={(p) => setProfile({ ...profile, ...p, onboarded: true })} />;
+  if (!profile.isLoggedIn) {
+    return <AuthView onLogin={(p) => setProfile({ ...profile, ...p, isLoggedIn: true })} />;
   }
 
   const renderView = () => {
@@ -56,9 +56,8 @@ export default function App() {
 
   const getTitle = () => {
     if (customTitle) return customTitle;
-    const displayName = profile.privacyMode ? 'User' : (profile.name || 'Friend');
     switch (activeTab) {
-      case 'home': return 'Hello, ' + displayName;
+      case 'home': return 'TELP Dashboard';
       case 'support': return 'Support & Resources';
       case 'report': return 'Report Incident';
       case 'contacts': return 'Help & Contacts';
@@ -94,10 +93,10 @@ export default function App() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setShowAssistant(true)}
-          className="fixed bottom-24 right-6 bg-gradient-to-tr from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-[0_8px_24px_rgba(37,99,235,0.3)] z-40 flex items-center justify-center transition-shadow"
+          className="fixed bottom-24 right-6 bg-gradient-to-tr from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full shadow-[0_8px_24px_rgba(37,99,235,0.3)] z-40 flex items-center justify-center transition-shadow"
           style={{ left: 'calc(50% + 140px)', transform: 'translateX(-50%)' }}
         >
-          <Sparkles size={24} />
+          <MessageCircle size={20} />
         </motion.button>
 
         {/* Assistant Modal */}

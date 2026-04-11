@@ -50,7 +50,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMood
             <Logo size={20} variant="icon" className="brightness-200" />
             <span className="text-[10px] font-black tracking-widest uppercase opacity-80">TELP Dashboard</span>
           </div>
-          <h2 className="text-2xl font-bold mb-2">You are safe here.</h2>
+          <h2 className="text-2xl font-bold mb-1">You are safe here.</h2>
           <p className="text-blue-100 text-sm mb-6">How can we help you today?</p>
           <div className="grid grid-cols-2 gap-3">
             <button 
