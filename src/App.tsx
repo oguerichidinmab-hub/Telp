@@ -14,11 +14,13 @@ import { ProfileView } from './views/ProfileView';
 import { OnboardingView } from './views/OnboardingView';
 import { AuthView } from './views/AuthView';
 import { AssistantView } from './views/AssistantView';
+import { SplashView } from './views/SplashView';
 import { MessageCircle, Sparkles } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [showAssistant, setShowAssistant] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
   const [backAction, setBackAction] = useState<(() => void) | null>(null);
   const [customTitle, setCustomTitle] = useState<string | null>(null);
   const { 
@@ -34,6 +36,17 @@ export default function App() {
     setBackAction(null);
     setCustomTitle(null);
   }, [activeTab]);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash) {
+    return <SplashView />;
+  }
 
   if (!profile.onboarded) {
     return <OnboardingView profile={profile} onComplete={(p) => setProfile({ ...profile, ...p, onboarded: true })} />;
@@ -57,7 +70,7 @@ export default function App() {
   const getTitle = () => {
     if (customTitle) return customTitle;
     switch (activeTab) {
-      case 'home': return 'TELP Dashboard';
+      case 'home': return 'Dashboard';
       case 'support': return 'Support & Resources';
       case 'report': return 'Report Incident';
       case 'contacts': return 'Help & Contacts';
