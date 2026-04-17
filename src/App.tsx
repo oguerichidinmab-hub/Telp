@@ -58,12 +58,12 @@ export default function App() {
 
   const renderView = () => {
     switch (activeTab) {
-      case 'home': return <HomeView setActiveTab={setActiveTab} moods={moods} setMoods={setMoods} profile={profile} safetyPlan={safetyPlan} />;
+      case 'home': return <HomeView setActiveTab={setActiveTab} moods={moods} setMoods={setMoods} profile={profile} safetyPlan={safetyPlan} onOpenAssistant={() => setShowAssistant(true)} />;
       case 'support': return <SupportResourcesView setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
       case 'report': return <ReportView reports={reports} setReports={setReports} moods={moods} contacts={contacts} setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
       case 'contacts': return <ContactsView contacts={contacts} setContacts={setContacts} setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
       case 'profile': return <ProfileView profile={profile} setProfile={setProfile} safetyPlan={safetyPlan} setSafetyPlan={setSafetyPlan} setBackAction={setBackAction} setCustomTitle={setCustomTitle} />;
-      default: return <HomeView setActiveTab={setActiveTab} moods={moods} setMoods={setMoods} profile={profile} />;
+      default: return <HomeView setActiveTab={setActiveTab} moods={moods} setMoods={setMoods} profile={profile} safetyPlan={safetyPlan} onOpenAssistant={() => setShowAssistant(true)} />;
     }
   };
 
@@ -117,7 +117,7 @@ export default function App() {
           {showAssistant && (
             <div className="fixed inset-0 z-[100] flex justify-center pointer-events-none">
               <div className="w-full max-w-md h-full pointer-events-auto">
-                <AssistantView onClose={() => setShowAssistant(false)} />
+                <AssistantView onClose={() => setShowAssistant(false)} moods={moods} profile={profile} />
               </div>
             </div>
           )}

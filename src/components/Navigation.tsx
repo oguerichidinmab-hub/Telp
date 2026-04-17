@@ -81,15 +81,13 @@ import { Logo } from './Logo';
 export const Header: React.FC<{ title: string; onBack?: () => void }> = ({ title, onBack }) => (
   <header className="pt-16 pb-4 px-6 bg-white sticky top-0 z-40 flex items-center justify-between border-b border-gray-50">
     <div className="flex items-center gap-2">
-      {onBack ? (
+      {onBack && (
         <button 
           onClick={onBack}
           className="p-2 -ml-2 text-gray-600 active:scale-90 transition-transform rounded-full hover:bg-gray-50"
         >
           <ChevronLeft size={24} />
         </button>
-      ) : (
-        <Logo size={32} variant="icon" />
       )}
       <h1 className="text-xl font-bold text-gray-800 tracking-tight">{title}</h1>
     </div>

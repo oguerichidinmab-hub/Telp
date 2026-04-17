@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { X, Send, Mic, User, Bot, Loader2, AlertCircle } from 'lucide-react';
 import { getAssistantResponse } from '../services/gemini';
+import { MoodEntry, UserProfile } from '../types';
 
 interface Message {
   id: string;
@@ -12,13 +13,32 @@ interface Message {
 
 interface AssistantViewProps {
   onClose: () => void;
+  moods: MoodEntry[];
+  profile: UserProfile;
 }
 
-export const AssistantView: React.FC<AssistantViewProps> = ({ onClose }) => {
+export const AssistantView: React.FC<AssistantViewProps> = ({ onClose, moods, profile }) => {
+  const today = new Date().toISOString().split('T')[0];
+  const currentMood = moods.find(m => m.date === today)?.mood;
+
+  const getInitialMessage = () => {
+    let msg = `Hi ${profile.name || ''}! I'm the TELP Support Assistant. `;
+    if (currentMood) {
+      if (['sad', 'anxious', 'scared', 'angry'].includes(currentMood)) {
+        msg += `I see you logged that you're feeling ${currentMood} today. I'm here to listen if you want to talk about it.`;
+      } else {
+        msg += `Glad to see you're feeling ${currentMood} today! How can I support you?`;
+      }
+    } else {
+      msg += `I'm here to listen and help you find support. How are you feeling today?`;
+    }
+    return msg;
+  };
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hi! I'm the TELP Support Assistant. I'm here to listen and help you find support. How are you feeling today?",
+      text: getInitialMessage(),
       sender: 'bot',
       timestamp: Date.now()
     }
@@ -56,7 +76,7 @@ export const AssistantView: React.FC<AssistantViewProps> = ({ onClose }) => {
       parts: [{ text: m.text }]
     }));
 
-    const botResponseText = await getAssistantResponse(input, history);
+    const botResponseText = await getAssistantResponse(input, history, currentMood);
 
     const botMsg: Message = {
       id: (Date.now() + 1).toString(),
@@ -70,14 +90,47 @@ export const AssistantView: React.FC<AssistantViewProps> = ({ onClose }) => {
   };
 
   const toggleVoice = () => {
-    setIsListening(!isListening);
-    if (!isListening) {
-      // Mock voice recognition
-      setTimeout(() => {
-        setIsListening(false);
-        setInput('I need help with bullying at school');
-      }, 2000);
+    if (isListening) {
+      setIsListening(false);
+      return;
     }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice input is not supported in this browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => setIsListening(true);
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(prev => prev ? `${prev} ${transcript}` : transcript);
+      setIsListening(false);
+    };
+
+    recognition.onerror = (event: any) => {
+      if (event.error === 'no-speech') {
+        // No speech detected, quietly stop listening
+        setIsListening(false);
+        return;
+      }
+      
+      console.error('Speech recognition error', event.error);
+      if (event.error === 'not-allowed') {
+        alert("Microphone access was denied. Please allow microphone access to use voice input.");
+      }
+      setIsListening(false);
+    };
+
+    recognition.onend = () => setIsListening(false);
+
+    recognition.start();
   };
 
   return (

@@ -9,12 +9,14 @@ interface HomeViewProps {
   setMoods: React.Dispatch<React.SetStateAction<MoodEntry[]>>;
   profile: UserProfile;
   safetyPlan: SafetyPlan;
+  onOpenAssistant?: () => void;
 }
 
 import { Logo } from '../components/Logo';
 
-export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMoods, profile, safetyPlan }) => {
+export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMoods, profile, safetyPlan, onOpenAssistant }) => {
   const [showMoodPicker, setShowMoodPicker] = useState(true);
+  const [justLogged, setJustLogged] = useState(false);
 
   const hasSafetyPlan = safetyPlan.trustedPeople.length > 0 || 
                         safetyPlan.safePlaces.length > 0 || 
@@ -26,7 +28,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMood
   const handleMoodSelect = (mood: Mood) => {
     const newEntry: MoodEntry = { date: today, mood };
     setMoods(prev => [newEntry, ...prev.filter(m => m.date !== today)]);
-    // We don't necessarily need to hide it, or we can show a "success" state
+    setJustLogged(true);
+    setTimeout(() => setJustLogged(false), 4000);
   };
 
   const moodEmojis: Record<Mood, string> = {
@@ -104,6 +107,28 @@ export const HomeView: React.FC<HomeViewProps> = ({ setActiveTab, moods, setMood
             );
           })}
         </div>
+
+        {justLogged && currentMood && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 p-4 bg-purple-50 text-purple-800 rounded-2xl text-sm text-center border border-purple-100"
+          >
+            {['sad', 'anxious', 'scared', 'angry'].includes(currentMood.mood) ? (
+              <div className="space-y-3">
+                <p>I hear you. It's okay to feel {currentMood.mood}. Would you like to talk about it?</p>
+                <button 
+                  onClick={onOpenAssistant}
+                  className="bg-purple-600 text-white px-4 py-2 rounded-full font-semibold active:scale-95 transition-transform text-xs"
+                >
+                  Chat with Support Assistant
+                </button>
+              </div>
+            ) : (
+              <p>Glad you're feeling {currentMood.mood} today! Keep taking care of yourself.</p>
+            )}
+          </motion.div>
+        )}
       </section>
 
       {/* Quick Actions */}

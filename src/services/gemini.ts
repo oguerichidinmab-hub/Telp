@@ -13,12 +13,24 @@ const getGenAI = () => {
   return genAI;
 };
 
-export const getAssistantResponse = async (userMessage: string, history: { role: "user" | "model", parts: { text: string }[] }[]) => {
+export const getAssistantResponse = async (userMessage: string, history: { role: "user" | "model", parts: { text: string }[] }[], currentMood?: string) => {
   try {
     const ai = getGenAI();
-    const model = (ai as any).getGenerativeModel({
+    const contents = [
+      ...history.map(h => ({
+        role: h.role,
+        parts: h.parts
+      })),
+      { role: "user", parts: [{ text: userMessage }] }
+    ];
+
+    const moodContext = currentMood ? `\nThe user recently logged their mood as: ${currentMood}. Keep this in mind during your responses.` : '';
+
+    const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      systemInstruction: `You are the "TELP Support Assistant", a calm, supportive, and non-judgmental AI for teenagers.
+      contents,
+      config: {
+        systemInstruction: `You are the "TELP Support Assistant", a calm, supportive, and non-judgmental AI for teenagers.${moodContext}
         Your goal is to help users facing bullying, abuse, or sexual violence.
         Rules:
         1. Use gentle, supportive language.
@@ -29,15 +41,10 @@ export const getAssistantResponse = async (userMessage: string, history: { role:
         6. If asked about emergency services, provide general advice to call local emergency numbers (like 911 or 999).
         7. Keep responses concise and youth-friendly.
         8. Disclaimer: You are an AI assistant providing guidance, not a replacement for professional help or emergency services.`,
+      }
     });
 
-    const chat = model.startChat({
-      history: history.map(h => ({ role: h.role, parts: h.parts })),
-    });
-
-    const result = await chat.sendMessage(userMessage);
-    const response = await result.response;
-    return response.text() || "I'm here to support you. Could you tell me a bit more about what's happening?";
+    return response.text || "I'm here to support you. Could you tell me a bit more about what's happening?";
   } catch (error) {
     console.error("Assistant Error:", error);
     return "I'm sorry, I'm having a little trouble connecting right now. Please remember you can always reach out to a trusted adult or emergency services if you need immediate help.";
